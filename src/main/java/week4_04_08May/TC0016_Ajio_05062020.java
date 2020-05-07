@@ -33,7 +33,8 @@ public class TC0016_Ajio_05062020 {
 
 	public static void main(String[] args) throws InterruptedException {
 		
-		double iDiscountProductPrice=0.0;
+		double iCalculateDiscountPrice=0.0;
+		String sGetCouponCode="";
 		//1) Go to https://www.ajio.com/shop/sale
 		System.setProperty("webdriver.chrome.driver","./drivers/chromedriver.exe");
 		ChromeDriver driver=new ChromeDriver();
@@ -79,12 +80,16 @@ public class TC0016_Ajio_05062020 {
 		double iProductPrice = Double.parseDouble(sProductPrice);
 		String sCoupon = driver.findElementByXPath("//div[@class='promo-desc']").getText();
 		if(sCoupon.contains("2690 and Above")) {
+			System.out.println("Coupon code Available for the price Above 2690");
 			String sDiscountPrice = driver.findElementByXPath("//div[@class='promo-desc']/preceding::span[1]").getText().replaceAll("[^0-9]+","");
 			double iDiscountPrice = Double.parseDouble(sDiscountPrice);
 			String sCouponCode = driver.findElementByXPath("//div[@class='promo-desc']/preceding::div[@class='promo-title']").getText();
-			System.out.println("Coupon Code-"+sCouponCode);
-			iDiscountProductPrice=iProductPrice-iDiscountPrice;
-			System.out.println(iDiscountProductPrice);
+			String[] splitCode = sCouponCode.split("Use Code");
+			sGetCouponCode=splitCode[1];
+			System.out.println("Coupon Code-"+sGetCouponCode);
+			
+			iCalculateDiscountPrice=iProductPrice-iDiscountPrice;
+			System.out.println("Calculate Discount Price-"+iCalculateDiscountPrice);
 		}
 		else
 			System.out.println("Coupon code for the price Below 2690");
@@ -94,12 +99,12 @@ public class TC0016_Ajio_05062020 {
 		//7) Check the availability of the product for pincode 560043, print the expected delivery date if it is available
 		driver.findElementByXPath("//span[text()='Enter pin-code to know estimated delivery date.']").click();
 		Thread.sleep(2000);
-		driver.findElementByXPath("//input[@class='edd-pincode-modal-text']").sendKeys("600119");
+		driver.findElementByXPath("//input[@class='edd-pincode-modal-text']").sendKeys("682001");
 		Thread.sleep(2000);
 		driver.findElementByXPath("//button[text()='CONFIRM PINCODE']").click();
 		Thread.sleep(2000);
-		/*String sExpectedDelivery = driver.findElementByXPath("//li[text()='Expected Delivery: ']/span").getText();
-		System.out.println("Expected Delivery Date-"+sExpectedDelivery);*/
+		String sExpectedDelivery = driver.findElementByXPath("//li[text()='Expected Delivery: ']/span").getText();
+		System.out.println("Expected Delivery Date-"+sExpectedDelivery);
 		
 		//8) Click on Other Informations under Product Details and Print the Customer Care address, phone and email
 		driver.findElementByXPath("//div[text()='Other information']").click();
@@ -121,7 +126,7 @@ public class TC0016_Ajio_05062020 {
 		System.out.println("Order Total-"+iOrderTotal);
 		
 		//11) Enter Coupon Code and Click Apply
-		driver.findElementById("couponCodeInput").sendKeys("EPIC");
+		driver.findElementById("couponCodeInput").sendKeys(sGetCouponCode);
 		Thread.sleep(3000);
 		driver.findElementByXPath("//button[text()='Apply']").click();
 		
@@ -130,15 +135,12 @@ public class TC0016_Ajio_05062020 {
 		String sCouponSaving = splitCoupon[1].replaceAll("[^0-9. ]+","");
 		double iCouponSaving = Math.round(Double.parseDouble(sCouponSaving));
 		
-		String[] sSplitDiscountOrderTotal = driver.findElementByXPath("//span[text()='Order Total']/following::span[1]").getText().split("Rs.");
-		String sDiscountOrderTotal = sSplitDiscountOrderTotal[1].replaceAll("[^0-9. ]+","");
-		double iDiscountOrderTotal = Math.round(Double.parseDouble(sDiscountOrderTotal));
-		System.out.println("Discount Order Total-"+iDiscountOrderTotal);
-		double TotalOrderCouponSaving=iOrderTotal+iCouponSaving;
-		if(iCouponSaving==iDiscountProductPrice)
-			System.out.println("Verify the Coupon Savings amount(round off if it in decimal)-"+iCouponSaving+" under Order Summary and the matches-"+TotalOrderCouponSaving+" the amount calculated in Product details"+iDiscountProductPrice);
+		System.out.println("Coupon Savings amount(round off if it in decimal)-"+iCouponSaving);
+		
+		if(iCouponSaving==iCalculateDiscountPrice)
+			System.out.println("Verify the Coupon Savings amount(round off if it in decimal)-"+iCouponSaving+" under Order Summary and the matches the amount calculated in Product details-"+iCalculateDiscountPrice);
 		else
-			System.out.println("Verification Failed the Coupon Savings amount(round off if it in decimal)-"+iCouponSaving+" under Order Summary and the matches-"+TotalOrderCouponSaving+" the amount calculated in Product details"+iDiscountProductPrice);
+			System.out.println("Verification Failed the Coupon Savings amount(round off if it in decimal)-"+iCouponSaving+" under Order Summary and the matches the amount calculated in Product details-"+iCalculateDiscountPrice);
 		
 		//13) Click on Delete and Delete the item from Bag
 		driver.findElementByXPath("//div[text()='Delete']").click();
