@@ -39,6 +39,7 @@ public class Java_ValidEmailUser {
 		//String sUsername="Balaji_1";
 		String sUsername="Testleaf$123";
 		String sUserPattern="[a-zA-z0-9._@$]{8,}";
+		//another pattern String regex ="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,16}$";
 		Pattern Usercompile = Pattern.compile(sUserPattern);
 		Matcher Usermatcher = Usercompile.matcher(sUsername);
 		System.out.println(Usermatcher.matches());
